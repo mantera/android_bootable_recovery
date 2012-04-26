@@ -407,8 +407,12 @@ void show_mount_usb_storage_menu()
 int confirm_selection(const char* title, const char* confirm)
 {
     struct stat info;
+    ensure_path_mounted("/sdcard");
     if (0 == stat("/sdcard/clockworkmod/.no_confirm", &info))
+	{
+		ensure_path_unmounted("/sdcard");
         return 1;
+	}
 
     char* confirm_headers[]  = {  title, "  THIS CAN NOT BE UNDONE.", "", NULL };
 	if (0 == stat("/sdcard/clockworkmod/.one_confirm", &info)) {
@@ -416,6 +420,7 @@ int confirm_selection(const char* title, const char* confirm)
 						confirm, //" Yes -- wipe partition",   // [1]
 						NULL };
 		int chosen_item = get_menu_selection(confirm_headers, items, 0, 0);
+		ensure_path_unmounted("/sdcard");
 		return chosen_item == 1;
 	}
 	else {
@@ -432,9 +437,10 @@ int confirm_selection(const char* title, const char* confirm)
 						"No",
 						NULL };
 		int chosen_item = get_menu_selection(confirm_headers, items, 0, 0);
+		ensure_path_unmounted("/sdcard");
 		return chosen_item == 7;
 	}
-	}
+}
 
 #define MKE2FS_BIN      "/sbin/mke2fs"
 #define TUNE2FS_BIN     "/sbin/tune2fs"
